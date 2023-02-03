@@ -1,0 +1,38 @@
+server:
+  servlet:
+    context-path: /check_attend
+  port: 8080
+
+spring:
+  profiles:
+    include: mysql, mybatis-plus,druid,redis
+  devtools:
+    restart:
+      enabled: true #设置开启热部署
+  freemarker:
+    cache: false #页面不加载缓存，修改即时生效
+  mvc:
+    static-path-pattern: /image/**
+  web:
+    resources:
+      static-locations: file:${user.dir}/image/
+  jackson:
+    default-property-inclusion: non_null
+  task:
+    scheduling:
+      pool:
+        size: 10
+
+# knife4j增强功能开启
+knife4j:
+  enable: true
+
+logging:
+  level:
+    org.springframework.boot.autoconfigure: error
+    com.sixonenine.web.dao: debug
+    com.sixonenine.web.service.impl: debug
+
+wxMini:
+  appId: wx5862d486cf0dcd23
+  secret: 0c2ef2a652a94fd701b2c231e96695bc

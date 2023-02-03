@@ -1,1 +1,6 @@
-# check_attend_api-develop-
+# 考勤管理系统-后台API-南通大学
+
+#### 介绍
+基本实现了所有的需求，但只提供后端代码和所有的接口，自行设计前端并使用提供的api接口即可。使用前记得导SQL文件。
+API文档如下：
+链接：https://www.apifox.cn/apidoc/shared-7861486f-8339-43c6-8701-869ee47cf491 访问密码：JmwwA8gg

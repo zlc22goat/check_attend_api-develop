@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.web.mapper.CheckRecordMapper">
+    <resultMap id="baseResultMap" type="com.example.web.model.pojo.CheckRecord">
+        <id column="id" property="id"/>
+        <result column="check_category_id" property="checkCategoryId"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="employe_id" property="employeId"/>
+        <result column="launch_time_id" property="launchTimeId"/>
+        <result column="description" property="description"/>
+        <result column="recorder_id" property="recorderId"/>
+    </resultMap>
+    
+    <resultMap id="deep" type="com.example.web.model.vo.CheckRecordVo" extends="baseResultMap">
+        <id column="id" property="id"/>
+        <result column="check_category" property="checkCategory"/>
+        <result column="employe_name" property="employeName"/>
+        <result column="launch_time" property="launchTime"/>
+        <result column="recorder_name" property="recorderName"/>
+    </resultMap>
+
+    <select id="deepSearch" resultMap="deep">
+        select `check_record`.*,
+               cc.category as check_category ,
+               e.name as employe_name ,
+               a.attend_time as launch_time ,
+               e2.name as recorder_name
+        from `check_record`
+        left join `check_category` as cc
+        on `check_record`.check_category_id = cc.id
+        left join `employe` as e
+        on `check_record`.employe_id = e.id
+        left join `attend_time` as a
+        on `check_record`.launch_time_id = a.id
+        left join `employe` as e2
+        on `check_record`.recorder_id = e2.id
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+</mapper>

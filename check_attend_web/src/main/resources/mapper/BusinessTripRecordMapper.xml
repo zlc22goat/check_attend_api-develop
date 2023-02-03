@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.web.mapper.BusinessTripRecordMapper">
+    <resultMap id="baseResultMap" type="com.example.web.model.pojo.BusinessTripRecord">
+        <id column="id" property="id"/>
+        <result column="start_time" property="startTime"/>
+        <result column="duration" property="duration"/>
+        <result column="companion" property="companion"/>
+        <result column="destination" property="destination"/>
+        <result column="trip_mode_id" property="tripModeId"/>
+        <result column="reason" property="reason"/>
+        <result column="employe_id" property="employeId"/>
+        <result column="status" property="status"/>
+        <result column="auditor_id" property="auditorId"/>
+    </resultMap>
+
+    <resultMap id="deep" type="com.example.web.model.vo.BusinessTripRecordVo" extends="baseResultMap">
+        <id column="id" property="id"/>
+        <result column="trip_mode" property="tripMode"/>
+        <result column="employe_name" property="employeName"/>
+        <result column="auditor_name" property="auditorName"/>
+    </resultMap>
+
+    <select id="deepSearch" resultMap="deep">
+        select `business_trip_record`.*,
+        tm.mode as trip_mode ,
+        e.name as employe_name ,
+        e2.name as auditor_name
+        from `business_trip_record`
+        left join `trip_mode` as tm
+        on `business_trip_record`.trip_mode_id = tm.id
+        left join `employe` as e
+        on `business_trip_record`.employe_id = e.id
+        left join `employe` as e2
+        on `business_trip_record`.auditor_id = e2.id
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+</mapper>

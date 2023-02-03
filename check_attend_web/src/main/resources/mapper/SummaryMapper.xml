@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.web.mapper.SummaryMapper">
+    <select id="getSummary" resultType="com.example.web.model.vo.SummaryVo" parameterType="string">
+        SELECT `employe`.`id`   as employe_id,
+               `employe`.`name` as employe_name,
+               vr.vacation_time_sum,
+               btr.business_trip_freq,
+               ovr.over_time_sum,
+               rr.rest_time_sum,
+               cr.late_freq,
+               cr.early_freq,
+               cr.leakage_freq,
+               cr.morning_absent,
+               cr.morning_exercise_absent,
+               cr.meeting_absent
+        FROM `employe`
+                 LEFT JOIN (
+            SELECT COUNT(c.check_category_id = '0' OR NULL) as late_freq,
+                   COUNT(c.check_category_id = '1' OR NULL) as early_freq,
+                   COUNT(c.check_category_id = '2' OR NULl) as leakage_freq,
+                   COUNT(c.check_category_id = '3' OR NULl) as morning_absent,
+                   COUNT(c.check_category_id = '4' OR NULL) as morning_exercise_absent,
+                   COUNT(c.check_category_id = '5' OR NULL) as meeting_absent,
+                   c.employe_id
+            FROM `check_record` as c
+            <where>
+                <if test="st!=null">
+                    c.`check_time` >= #{st}
+                </if>
+                <if test="et!=null">
+                    and c.`check_time` <![CDATA[<=]]> #{et}
+                </if>
+            </where>
+            GROUP BY c.employe_id
+        ) as cr
+                           on `employe`.id = cr.employe_id
+                 LEFT JOIN (
+            select SUM(v.`day`) + ROUND(SUM(v.`hour` * 1. / 24), 2) as vacation_time_sum,
+                   v.employe_id
+            from `vacation_record` as v
+            WHERE v.`status` = '1'
+                <if test="st!=null">
+                    and v.`end_time` >= #{st}
+                </if>
+                <if test="et!=null">
+                    and v.`start_time` <![CDATA[<=]]> #{et}
+                </if>
+            GROUP BY v.employe_id
+        ) as vr
+                           on `employe`.id = vr.employe_id
+                 LEFT JOIN (
+            select COUNT(b.id) as business_trip_freq,
+                   b.employe_id
+            from `business_trip_record` as b
+            WHERE b.`status` = '1'
+                <if test="st!=null">
+                    and b.`start_time` >= #{st}
+                </if>
+                <if test="et!=null">
+                    and b.`start_time` <![CDATA[<=]]> #{et}
+                </if>
+            GROUP BY b.employe_id
+        ) as btr
+                           on `employe`.id = btr.employe_id
+                 LEFT JOIN (
+            SELECT ROUND(SUM(o.duration), 3) as over_time_sum,
+                   o.employe_id
+            FROM `overtime_record` as o
+            WHERE o.`status` = '1'
+                <if test="st!=null">
+                    and o.`gmt_create` >= #{st}
+                </if>
+                <if test="et!=null">
+                    and o.`gmt_create` <![CDATA[<=]]> #{et}
+                </if>
+            GROUP BY o.employe_id
+        ) as ovr
+                           on `employe`.id = ovr.employe_id
+                 LEFT JOIN (
+            SELECT ROUND(SUM(r.duration), 3) as rest_time_sum,
+                   r.employe_id
+            FROM `rest_record` as r
+            WHERE r.`status` = '1'
+                <if test="st!=null">
+                    and r.`gmt_create` >= #{st}
+                </if>
+                <if test="et!=null">
+                    and r.`gmt_create` <![CDATA[<=]]> #{et}
+                </if>
+            GROUP BY r.employe_id
+        ) as rr
+                           on `employe`.id = rr.employe_id
+        <where>
+            <if test="dmi!=null">
+                `employe`.`department_id`=#{dmi}
+            </if>
+        </where>
+    </select>
+</mapper>

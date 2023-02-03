@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.web.mapper.UserMapper">
+    <resultMap id="baseResultMap" type="com.example.core.model.pojo.User">
+        <id column="id" property="id"/>
+        <result column="role_id" property="roleId"/>
+        <result column="user_name" property="userName"/>
+        <result column="password" property="password"/>
+        <result column="salt" property="salt"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="state" property="state"/>
+        <result column="employe_id" property="employeId"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <resultMap id="allInfo" type="com.example.web.model.vo.LoginUserVo" extends="baseResultMap">
+        <id column="id" property="id"/>
+        <association property="employe" javaType="com.example.web.model.pojo.Employe">
+            <id column="e_id" property="id"/>
+            <result column="code" property="code"/>
+            <result column="name" property="name"/>
+            <result column="gender" property="gender"/>
+            <result column="age" property="age"/>
+            <result column="e_email" property="email"/>
+            <result column="education" property="education"/>
+            <result column="e_phone" property="phone"/>
+            <result column="duty" property="duty"/>
+        </association>
+    </resultMap>
+
+    <select id="getUserAllInfo" resultMap="allInfo">
+        select `user`.*,
+               e.id as e_id,
+               e.code,
+               e.name,
+               e.gender,
+               e.age,
+               e.email as e_email,
+               e.education,
+               e.phone as e_phone,
+               e.duty
+        from `user`
+        left join `employe` as e
+        on `user`.employe_id = e.id
+        where `user`.user_name = #{userName}
+    </select>
+
+</mapper>

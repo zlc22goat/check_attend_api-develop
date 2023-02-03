@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.web.mapper.OvertimeRecordMapper">
+    <resultMap id="baseResultMap" type="com.example.web.model.pojo.OvertimeRecord">
+        <id column="id" property="id"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="start_time" property="startTime"/>
+        <result column="duration" property="duration"/>
+        <result column="reason" property="reason"/>
+        <result column="employe_id" property="employeId"/>
+        <result column="status" property="status"/>
+        <result column="auditor_id" property="auditorId"/>
+    </resultMap>
+
+    <resultMap id="deep" type="com.example.web.model.vo.OvertimeRecordVo" extends="baseResultMap">
+        <id column="id" property="id"/>
+        <result column="employe_name" property="employeName"/>
+        <result column="auditor_name" property="auditorName"/>
+    </resultMap>
+
+    <select id="deepSearch" resultMap="deep">
+        select `overtime_record`.*,
+        e.name as employe_name ,
+        e2.name as auditor_name
+        from `overtime_record`
+        left join `employe` as e
+        on `overtime_record`.employe_id = e.id
+        left join `employe` as e2
+        on `overtime_record`.auditor_id = e2.id
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>
+
+    <select id="getOvertimes" parameterType="string" resultType="double">
+        select SUM(`overtime_record`.duration)
+        from `overtime_record`
+        where `overtime_record`.employe_id=#{employeId} and status = 1
+    </select>
+</mapper>
